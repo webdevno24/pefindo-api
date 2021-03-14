@@ -15,4 +15,4 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 Route::post('smartSearchCompany', 'PefindoController@smartSearchCompany')->name('smartSearchCompany');
-Route::post('customReport', 'PefindoController@CustomReport')->name('customReport');
+Route::get('customReport', 'PefindoController@CustomReport')->name('customReport');

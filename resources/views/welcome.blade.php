@@ -59,12 +59,14 @@
                         @foreach ($search_data['data'] as $data)
                         <tr>
                             <td>
-                                <a href="#" class="btn btn-sm btn-success">lihat</a>
+                                <a href="{{ route('customReport', [
+                                    'PefindoId' => $data['PefindoId'], 'InquiryReason' => $input['inquiry_reason'], 'InquiryReasonText' => $input['inquiry_reason_text']
+                                ]) }}" class="btn btn-sm btn-success" target="_blank">lihat</a>
                             </td>
-                            <td>{{ $data->PefindoId }}</td>
-                            <td>{{ $data->NPWP }}</td>
-                            <td>{{ $data->CompanyName }}</td>
-                            <td>{{ $data->Address }}</td>
+                            <td>{{ $data['PefindoId'] }}</td>
+                            <td>{{ $data['NPWP'] }}</td>
+                            <td>{{ $data['CompanyName'] }}</td>
+                            <td>{{ $data['Address'] }}</td>
                         </tr>
                         @endforeach
                     </tbody>
