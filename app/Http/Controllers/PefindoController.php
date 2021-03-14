@@ -19,7 +19,7 @@ class PefindoController extends Controller
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS =>$this->getSingleHitPostBody($request->except('_token')),
+            CURLOPT_POSTFIELDS =>$this->getSearchPostBody($request->except('_token')),
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: text/xml',
                 'SoapAction: http://creditinfo.com/CB5/IReportPublicServiceBase/SmartSearchCompany',
@@ -30,23 +30,15 @@ class PefindoController extends Controller
         $response = curl_exec($curl);
         $response = str_replace(['s:', 'a:', 'i:'], '', $response);
         curl_close($curl);
-        $temp = <<<XML
-        <?xml version='1.0' standalone='yes'?>$response
-        XML;
-        $temp = new \SimpleXMLElement($temp);
-        dd($temp);
-        // ======
-        // $temp = simplexml_load_string($response);
-        // $temp = json_encode($temp);
-        // $temp = json_decode($temp, true);
-        // dd($temp);
-        return \Response::make($response, 200, ['Content-type' => 'text/xml']);
 
-        // return \Response::make($this->getSingleHitPostBody($request->except('_token')), 200, ['Content-type' => 'text/xml']);
-        // return $request;
+        $data = $this->getSearchResultJson($response);
+        // return [$data];
+        return view('welcome', [
+            'search_data' => $data,
+        ])->withInput($request->except('_token'));
     }
 
-    public function getSingleHitPostBody($data = [])
+    public function getSearchPostBody($data = [])
     {
         $xml = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:cb5="http://creditinfo.com/CB5"
@@ -80,5 +72,45 @@ class PefindoController extends Controller
             ], $xml);
         }
         return $xml;
+    }
+
+    public function getSearchResultJson(string $xml)
+    {
+        $result = [
+            'status' => false,
+            'data' => [],
+            'message' => ''
+        ];
+        if (!$xml) {
+            $result['message'] = 'Error';
+        }else{
+            $data = json_decode(json_encode(new \SimpleXMLElement(<<<XML
+            <?xml version='1.0' standalone='yes'?>$xml
+            XML)))->Body->SmartSearchCompanyResponse->SmartSearchCompanyResult;
+            $result['message'] = $data->Status;
+            if ($result['message'] === 'SubjectFound') {
+                $result['status'] = true;
+                if (is_array($data->CompanyRecords->SearchCompanyRecord)) {
+                    $result['data'] = $data->CompanyRecords->SearchCompanyRecord;
+                }else{
+                    $result['data'][] = $data->CompanyRecords->SearchCompanyRecord;
+                }
+
+                /* Change index to lowercase */
+                // $result['data'] = collect($result['data'])->map(function($item) {
+                //     $temp = [];
+                //     collect($item)->map(function($value, $index) use(&$temp) {
+                //         $temp[strtolower($index)] = $value;
+                //     });
+                //     return $temp;
+                // });
+            }
+        }
+        return $result;
+    }
+
+    public function customReport(Type $var = null)
+    {
+        # code...
     }
 }
