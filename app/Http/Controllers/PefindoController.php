@@ -66,6 +66,7 @@ class PefindoController extends Controller
 
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://cbs5bodemo2.pefindobirokredit.com/WsReport/v5.53/Service.svc',
+            CURLOPT_USERPWD => 'demofin_3:Testing@1',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -77,7 +78,6 @@ class PefindoController extends Controller
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: text/xml',
                 'SoapAction: http://creditinfo.com/CB5/IReportPublicServiceBase/SmartSearchCompany',
-                'Authorization: Basic ZGVtb2Zpbl8zOlRlc3RpbmdAMQ=='
             ),
         ]);
 
@@ -166,6 +166,7 @@ class PefindoController extends Controller
         // return Response::make($this->getReportPostBody($request->except('_token')), 200, ['Content-Type' => 'text/xml']);;
         curl_setopt_array($curl, [
             CURLOPT_URL => 'https://cbs5bodemo2.pefindobirokredit.com/WsReport/v5.53/Service.svc',
+            CURLOPT_USERPWD => 'demofin_3:Testing@1',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -177,7 +178,6 @@ class PefindoController extends Controller
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: text/xml',
                 'SoapAction: http://creditinfo.com/CB5/IReportPublicServiceBase/GetCustomReport',
-                'Authorization: Basic ZGVtb2Zpbl8zOlRlc3RpbmdAMQ=='
             ),
         ]);
 
