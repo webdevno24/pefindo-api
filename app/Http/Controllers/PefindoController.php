@@ -185,6 +185,7 @@ class PefindoController extends Controller
         curl_close($curl);
 
         $data = $this->getReportResult($response);
+        // dd($data);
         // return Response::make($this->xmlToArray($response), 200, ['Content-Type' => 'text/xml']);
         return view('report', $data);
     }
@@ -235,11 +236,9 @@ class PefindoController extends Controller
             'data' => [],
             'message' => ''
         ];
-        if (!$xml) {
-            $result['message'] = 'Error';
-        }else{
+
+        try {
             $data = $this->xmlToArray($xml)['Body']['GetCustomReportResponse']['GetCustomReportResult'];
-            // dd($data);
             $result['status'] = true;
             $result['data'] = [
                 'company' => [
@@ -255,7 +254,12 @@ class PefindoController extends Controller
                     'failpay_prob' => $data['CIP']['RecordList']['Record'][0]['ProbabilityOfDefault'],
                     'trend' => $data['CIP']['RecordList']['Record'][0]['Trend'],
                 ],
-                'desc_about_risk' => collect($data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
+                'desc_about_risk' => array_key_exists('Code', $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
+                ? [[
+                    'code' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Code'],
+                    'description' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Description'],
+                ]]
+                : collect($data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
                 ->map(function($item) {
                     return [ 'code' => $item['Code'], 'description' => $item['Description'] ];
                 })->toArray(),
@@ -271,6 +275,9 @@ class PefindoController extends Controller
                     ];
                 })->toArray(),
             ];
+        } catch (\Throwable $th) {
+            $result['status'] = false;
+            $result['message'] = 'Error';
         }
         return $result;
     }
