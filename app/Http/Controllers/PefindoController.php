@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -185,7 +186,7 @@ class PefindoController extends Controller
 
         $data = $this->getReportResult($response);
         // return Response::make($this->xmlToArray($response), 200, ['Content-Type' => 'text/xml']);
-        return response()->json($data, 200);
+        return view('report', $data);
     }
 
     public function getReportPostBody($data = [])
@@ -238,8 +239,38 @@ class PefindoController extends Controller
             $result['message'] = 'Error';
         }else{
             $data = $this->xmlToArray($xml)['Body']['GetCustomReportResponse']['GetCustomReportResult'];
+            // dd($data);
             $result['status'] = true;
-            $result['data'] = $data;
+            $result['data'] = [
+                'company' => [
+                    'name' => $data['Company']['General']['CompanyName'],
+                    'npwp' => $data['Company']['Identifications']['NPWP'],
+                    'pefindo_id' => $data['Company']['Identifications']['PefindoId'],
+                    'address' => $data['Company']['MainAddress']['AddressLine'],
+                ],
+                'pefindo_score' => [
+                    'score' => $data['CIP']['RecordList']['Record'][0]['Score'],
+                    'grade' => $data['CIP']['RecordList']['Record'][0]['Grade'],
+                    'grade_desc' => '',
+                    'failpay_prob' => $data['CIP']['RecordList']['Record'][0]['ProbabilityOfDefault'],
+                    'trend' => $data['CIP']['RecordList']['Record'][0]['Trend'],
+                ],
+                'desc_about_risk' => collect($data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
+                ->map(function($item) {
+                    return [ 'code' => $item['Code'], 'description' => $item['Description'] ];
+                })->toArray(),
+                'pefindo_score_histories' => collect($data['CIP']['RecordList']['Record'])->take(12)
+                ->map(function($item) {
+                    return [
+                        'date' => Carbon::parse($item['Date']),
+                        'score' => $item['Score'],
+                        'grade' => $item['Grade'],
+                        'grade_desc' => '',
+                        'failpay_prob' => $item['ProbabilityOfDefault'],
+                        'trend' => $item['Trend'],
+                    ];
+                })->toArray(),
+            ];
         }
         return $result;
     }
