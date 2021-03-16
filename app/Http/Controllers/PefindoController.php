@@ -93,7 +93,6 @@ class PefindoController extends Controller
 
     public function getSearchPostBody($data = [])
     {
-        dd($data);
         $xml = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:cb5="http://creditinfo.com/CB5"
         xmlns:smar="http://creditinfo.com/CB5/v5.53/SmartSearch">
