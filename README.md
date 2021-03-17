@@ -1,7 +1,8 @@
 # Pefindo API
 
-#### SmartSearchCompany
-`https://...`
+### SmartSearchCompany
+**Method:** `POST`
+**URL:** `http://pefindo.kapitalboost.co.id/api/search/company`
 
 **Request :**
 - **npwp** 
