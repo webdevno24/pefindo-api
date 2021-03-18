@@ -20,3 +20,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['prefix' => 'search'], function() {
     Route::post('company', 'Api\PefindoController@searchCompany');
 });
+Route::group(['prefix' => 'report'], function() {
+    Route::post('company', 'Api\PefindoController@companyReport');
+});

@@ -35,4 +35,28 @@ class PefindoController extends Controller
 
         return response()->json($data, $data['status'] ? 200 : 500);
     }
+
+    public function companyReport(Request $request)
+    {
+        $data = [
+            'status' => false,
+            'data' => [],
+            'message' => '',
+        ];
+
+        $validator = Validator::make($request->all(), [
+            'pefindo_id' => 'required',
+            'inquiry_reason' => 'required|in:ProvidingFacilities,MonitoringDebtorOrCustomer,OperationalRiskManagement,FulfilRegulationRequirements,AnotherReason',
+            'inquiry_reason_text' => 'required_if:inquiry_reason,AnotherReason',
+        ]);
+
+        if (!$validator->fails()) {
+            $response = $this->sendPost($this->getReportPostBody($request->except('_token')), 'GetCustomReport');
+            $data = $this->getReportResult($response);
+        }else{
+            $data['errors'] = $validator->errors();
+        }
+
+        return response()->json($data, $data['status'] ? 200 : 500);
+    }
 }

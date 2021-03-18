@@ -11,8 +11,8 @@ trait PefindoTrait
         $curl = curl_init();
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://cbs5bodemo2.pefindobirokredit.com/WsReport/v5.53/Service.svc',
-            CURLOPT_USERPWD => 'demofin_3:Testing@1',
+            CURLOPT_URL => env('PEFINDO_URL', '#'),
+            CURLOPT_USERPWD => env('PEFINDO_USER', 'apa').':'.env('PEFINDO_PASS', 'ya?'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -136,19 +136,25 @@ trait PefindoTrait
             if ($result['message'] === 'SubjectFound') {
                 $result['status'] = true;
                 if (array_key_exists('NPWP', $data['CompanyRecords']['SearchCompanyRecord'])) {
-                    $result['data'][] = $data['CompanyRecords']['SearchCompanyRecord'];
+                    $result['data'][] = [
+                        'address' => $data['CompanyRecords']['SearchCompanyRecord']['Address'],
+                        'company_name' => $data['CompanyRecords']['SearchCompanyRecord']['CompanyName'],
+                        'npwp' => $data['CompanyRecords']['SearchCompanyRecord']['NPWP'],
+                        'pefindo_id' => $data['CompanyRecords']['SearchCompanyRecord']['PefindoId'],
+                    ];
                 }else{
-                    $result['data'] = $data['CompanyRecords']['SearchCompanyRecord'];
+                    // $result['data'] = $data['CompanyRecords']['SearchCompanyRecord'];
+                    /* Change index to lowercase */
+                    $result['data'] = collect($result['data'])->map(function($item) {
+                        return [
+                            'address' => $item['Address'],
+                            'company_name' => $item['CompanyName'],
+                            'npwp' => $item['NPWP'],
+                            'pefindo_id' => $item['PefindoId'],
+                        ];
+                    });
                 }
 
-                /* Change index to lowercase */
-                // $result['data'] = collect($result['data'])->map(function($item) {
-                //     $temp = [];
-                //     collect($item)->map(function($value, $index) use(&$temp) {
-                //         $temp[strtolower($index)] = $value;
-                //     });
-                //     return $temp;
-                // });
             }
         }
         return $result;
@@ -169,7 +175,7 @@ trait PefindoTrait
                         <cus:IDNumberType>PefindoId</cus:IDNumberType>
                         <cus:InquiryReason>{{InquiryReason}}</cus:InquiryReason>
                         <cus:InquiryReasonText>{{InquiryReasonText}}</cus:InquiryReasonText>
-                        <cus:ReportDate>'.date('Y-m-d').'</cus:ReportDate>
+                        <cus:ReportDate>{{ReportDate}}</cus:ReportDate>
                         <cus:LanguageCode>id-ID</cus:LanguageCode>
                         <cus:Sections>
                             <arr:string>CIP</arr:string>
@@ -185,9 +191,9 @@ trait PefindoTrait
         </soapenv:Envelope>';
         if (count($data)) {
             $xml = str_replace([
-                '{{PefindoId}}', '{{InquiryReason}}', '{{InquiryReasonText}}'
+                '{{PefindoId}}', '{{InquiryReason}}', '{{InquiryReasonText}}', '{{ReportDate}}'
             ], [
-                $data['PefindoId'], $data['InquiryReason'], $data['InquiryReasonText']
+                $data['pefindo_id'], $data['inquiry_reason'], $data['inquiry_reason_text'], $data['report_date'] ?? date('Y-m-d'),
             ], $xml);
         }
         return $xml;
@@ -212,6 +218,7 @@ trait PefindoTrait
                     'address' => $data['Company']['MainAddress']['AddressLine'],
                 ],
                 'pefindo_score' => [
+                    'date' => Carbon::parse($data['CIP']['RecordList']['Record'][0]['Date']),
                     'score' => $data['CIP']['RecordList']['Record'][0]['Score'],
                     'grade' => $data['CIP']['RecordList']['Record'][0]['Grade'],
                     'grade_desc' => '',
@@ -237,7 +244,7 @@ trait PefindoTrait
                         'failpay_prob' => $item['ProbabilityOfDefault'],
                         'trend' => $item['Trend'],
                     ];
-                })->toArray(),
+                })->reverse()->values()->toArray(),
             ];
         } catch (\Throwable $th) {
             $result['status'] = false;

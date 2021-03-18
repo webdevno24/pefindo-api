@@ -60,13 +60,13 @@
                         <tr>
                             <td>
                                 <a href="{{ route('customReport', [
-                                    'PefindoId' => $data['PefindoId'], 'InquiryReason' => $input['inquiry_reason'], 'InquiryReasonText' => $input['inquiry_reason_text']
+                                    'pefindo_id' => $data['pefindo_id'], 'inquiry_reason' => $input['inquiry_reason'], 'inquiry_reason_text' => $input['inquiry_reason_text']
                                 ]) }}" class="btn btn-sm btn-success" target="_blank">lihat</a>
                             </td>
-                            <td>{{ $data['PefindoId'] }}</td>
-                            <td>{{ $data['NPWP'] }}</td>
-                            <td>{{ $data['CompanyName'] }}</td>
-                            <td>{{ $data['Address'] }}</td>
+                            <td>{{ $data['pefindo_id'] }}</td>
+                            <td>{{ $data['npwp'] }}</td>
+                            <td>{{ $data['company_name'] }}</td>
+                            <td>{{ $data['address'] }}</td>
                         </tr>
                         @endforeach
                     </tbody>
