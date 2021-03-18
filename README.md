@@ -4,9 +4,11 @@
 
 ### #SmartSearchCompany
 **Method:** `POST`
+
 **URL:** `http://pefindo.kapitalboost.co.id/api/search/company`
 
 **Request :**
+
 - **npwp** 
 `[ text | required ] `
 - **company_name** 
@@ -46,8 +48,11 @@
 #
 ### #CustomReportCompany
 **Method:** `POST`
+
 **URL:** `http://pefindo.kapitalboost.co.id/api/report/company`
+
 **URL ( PDF ):** `http://pefindo.kapitalboost.co.id/api/report/company/download` **[ <span style="color:red; font-weight: bolder;">WIP</span> ]**
+
 **Request :**
 - **pefindo_id**
 `[ text | required ] `
