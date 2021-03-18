@@ -183,7 +183,7 @@ trait PefindoTrait
                             <arr:string>CIP</arr:string>
                             <!-- <arr:string>SubjectInfoHistory</arr:string> -->
                             <arr:string>ContractList</arr:string>
-                            <!-- <arr:string>ContractSummary</arr:string> -->
+                            <arr:string>ContractSummary</arr:string>
                             <!-- <arr:string>SubjectInfo</arr:string> -->
                         </cus:Sections>
                         <cus:SubjectType>Company</cus:SubjectType>
