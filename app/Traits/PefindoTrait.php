@@ -144,7 +144,7 @@ trait PefindoTrait
                 }else{
                     // $result['data'] = $data['CompanyRecords']['SearchCompanyRecord'];
                     /* Change index to lowercase */
-                    $result['data'] = collect($result['data'])->map(function($item) {
+                    $result['data'] = collect($data['CompanyRecords']['SearchCompanyRecord'])->map(function($item) {
                         return [
                             'address' => $item['Address'],
                             'company_name' => $item['CompanyName'],
