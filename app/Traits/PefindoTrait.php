@@ -211,6 +211,7 @@ trait PefindoTrait
 
         try {
             $data = $this->xmlToArray($xml)['Body']['GetCustomReportResponse']['GetCustomReportResult'];
+            dd($data);
             $result['status'] = true;
             $result['data'] = [
                 'company' => [
