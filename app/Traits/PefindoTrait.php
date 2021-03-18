@@ -250,7 +250,7 @@ trait PefindoTrait
             ];
         } catch (\Throwable $th) {
             $result['status'] = false;
-            $result['message'] = "".$th;
+            $result['message'] = "<pre>".$th."</pre>";
         }
         // dd($result);
         return $result;
