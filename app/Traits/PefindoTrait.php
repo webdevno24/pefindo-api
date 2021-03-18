@@ -211,6 +211,7 @@ trait PefindoTrait
 
         try {
             $data = $this->xmlToArray($xml)['Body']['GetCustomReportResponse']['GetCustomReportResult'];
+            // dd($data);
             $result['status'] = true;
             $result['data'] = [
                 'company' => [
@@ -247,6 +248,29 @@ trait PefindoTrait
                         'trend' => $item['Trend'],
                     ];
                 })->reverse()->values()->toArray(),
+                'facilities' => array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
+                ? [[
+                    'sector' => $data['ContractOverview']['ContractList']['Contract']['Sector'],
+                    'type' => $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
+                    'opening_date' => $data['ContractOverview']['ContractList']['Contract']['StartDate'],
+                    'status' => $data['ContractOverview']['ContractList']['Contract']['ContractStatus'],
+                    'plafon' => $data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Value']),
+                    'baki_debet' => $data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Value']),
+                    'past_due_amount' => $data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Value']),
+                    'past_due_days' => $data['ContractOverview']['ContractList']['Contract']['PastDueDays'],
+                ]]
+                : collect($data['ContractOverview']['ContractList']['Contract'])->map(function($item) {
+                    return [
+                        'sector' => $item['Sector'],
+                        'type' => $item['TypeOfContract'],
+                        'opening_date' => Carbon::parse($item['StartDate'])->format('Y-m-d'),
+                        'status' => $item['ContractStatus'],
+                        'plafon' => $item['TotalAmount']['Currency'].' '.number_format($item['TotalAmount']['Value']),
+                        'baki_debet' => $item['OutstandingAmount']['Currency'].' '.number_format($item['OutstandingAmount']['Value']),
+                        'past_due_amount' => $item['PastDueAmount']['Currency'].' '.number_format($item['PastDueAmount']['Value']),
+                        'past_due_days' => $item['PastDueDays'],
+                    ];
+                })->sortBy('opening_date')->toArray(),
             ];
         } catch (\Throwable $th) {
             $result['status'] = false;

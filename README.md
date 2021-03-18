@@ -51,7 +51,7 @@
 
 **URL:** `http://pefindo.kapitalboost.co.id/api/report/company`
 
-**URL ( PDF ):** `http://pefindo.kapitalboost.co.id/api/report/company/download` **[ <span style="color:red; font-weight: bolder;">WIP</span> ]**
+**URL ( PDF ):** `http://pefindo.kapitalboost.co.id/api/report/company/pdf` **[ <span style="color:red; font-weight: bolder;">WIP</span> ]**
 
 **Request :**
 - **pefindo_id**

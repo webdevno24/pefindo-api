@@ -36,7 +36,7 @@ class PefindoController extends Controller
         return response()->json($data, $data['status'] ? 200 : 500);
     }
 
-    public function companyReport(Request $request)
+    public function companyReport(Request $request, $download = false)
     {
         $data = [
             'status' => false,
@@ -57,6 +57,18 @@ class PefindoController extends Controller
             $data['errors'] = $validator->errors();
         }
 
+        if ($download) {
+            return $data;
+        }
         return response()->json($data, $data['status'] ? 200 : 500);
+    }
+
+    public function companyReportPdf(Request $request)
+    {
+        $data = $this->companyReport($request, true);
+        // return view('report', $data);
+        $dompdf = \PDF::loadView('report', $data);
+        $dompdf->setPaper('Letter', 'landscape');
+        return $dompdf->download('report.pdf');
     }
 }
