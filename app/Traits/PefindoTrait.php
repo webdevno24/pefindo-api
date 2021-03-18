@@ -127,9 +127,8 @@ trait PefindoTrait
             'data' => [],
             'message' => ''
         ];
-        if (!$xml) {
-            $result['message'] = 'Error';
-        }else{
+
+        try {
             $data = $this->xmlToArray($xml)['Body']['SmartSearchCompanyResponse']['SmartSearchCompanyResult'];
             // dd($data);
             $result['message'] = $data['Status'];
@@ -156,6 +155,9 @@ trait PefindoTrait
                 }
 
             }
+        } catch (\Throwable $th) {
+            $result['status'] = false;
+            $result['message'] = $th->getMessage();
         }
         return $result;
     }
