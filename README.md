@@ -1,6 +1,8 @@
 # Pefindo API
 
-### SmartSearchCompany
+#
+
+### #SmartSearchCompany
 **Method:** `POST`
 **URL:** `http://pefindo.kapitalboost.co.id/api/search/company`
 
@@ -40,11 +42,12 @@
   "message": "SubjectFound"
 }
 ```
-
-### CustomReportCompany
+#
+#
+### #CustomReportCompany
 **Method:** `POST`
 **URL:** `http://pefindo.kapitalboost.co.id/api/report/company`
-
+**URL ( PDF ):** `http://pefindo.kapitalboost.co.id/api/report/company/download` **[ <span style="color:red; font-weight: bolder;">WIP</span> ]**
 **Request :**
 - **pefindo_id**
 `[ text | required ] `
