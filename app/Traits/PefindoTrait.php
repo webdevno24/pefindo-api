@@ -181,7 +181,7 @@ trait PefindoTrait
                         <cus:LanguageCode>id-ID</cus:LanguageCode>
                         <cus:Sections>
                             <arr:string>CIP</arr:string>
-                            <!-- <arr:string>SubjectInfoHistory</arr:string> -->
+                            <arr:string>SubjectInfoHistory</arr:string>
                             <!-- <arr:string>ContractList</arr:string> -->
                             <!-- <arr:string>ContractSummary</arr:string> -->
                             <!-- <arr:string>SubjectInfo</arr:string> -->
@@ -211,6 +211,7 @@ trait PefindoTrait
 
         try {
             $data = $this->xmlToArray($xml)['Body']['GetCustomReportResponse']['GetCustomReportResult'];
+            dd($data);
             $result['status'] = true;
             $result['data'] = [
                 'company' => [
