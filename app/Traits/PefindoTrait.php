@@ -210,6 +210,7 @@ trait PefindoTrait
         ];
 
         try {
+            dd($this->xmlToArray($xml));
             $data = $this->xmlToArray($xml)['Body']['GetCustomReportResponse']['GetCustomReportResult'];
             dd($data);
             $result['status'] = true;
