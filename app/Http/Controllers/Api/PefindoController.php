@@ -65,6 +65,7 @@ class PefindoController extends Controller
 
     public function companyReportPdf(Request $request)
     {
+        dd($request);
         $data = $this->companyReport($request, true);
         // return view('report', $data);
         $dompdf = \PDF::loadView('report', $data);
