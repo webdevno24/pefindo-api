@@ -86,7 +86,6 @@
         "pefindo_score": {
             "date": "2021-03-18T00:00:00.000000Z",
             "score": "574",
-            "score": "574",
             "grade": "D3",
             "grade_desc": "",
             "failpay_prob": "26.57",
