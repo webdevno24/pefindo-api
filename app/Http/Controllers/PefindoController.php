@@ -13,8 +13,8 @@ class PefindoController extends Controller
 
     public function smartSearchCompany(Request $request)
     {
-        $response = $this->sendPost($this->getSearchPostBody($request->except('_token')), 'SmartSearchCompany');
-        $data = $this->getSearchResult($response);
+        $response = $this->sendPost($this->getSearchCompanyPostBody($request->except('_token')), 'SmartSearchCompany');
+        $data = $this->getSearchCompanyResult($response);
         // return [$data];
         return view('welcome', [
             'search_data' => $data,
@@ -23,8 +23,8 @@ class PefindoController extends Controller
 
     public function customReport(Request $request)
     {
-        $response = $this->sendPost($this->getReportPostBody($request->except('_token')), 'GetCustomReport');
-        $data = $this->getReportResult($response);
+        $response = $this->sendPost($this->getCompanyReportPostBody($request->except('_token')), 'GetCustomReport');
+        $data = $this->getCompanyReportResult($response);
         // dd($data);
         // return Response::make($this->xmlToArray($response), 200, ['Content-Type' => 'text/xml']);
         return view('report', $data);

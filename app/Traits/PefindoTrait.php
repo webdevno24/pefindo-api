@@ -84,7 +84,7 @@ trait PefindoTrait
         return $result;
     }
 
-    public function getSearchPostBody($data = [])
+    public function getSearchCompanyPostBody($data = [])
     {
         $xml = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:cb5="http://creditinfo.com/CB5"
@@ -120,7 +120,7 @@ trait PefindoTrait
         return $xml;
     }
 
-    public function getSearchResult(string $xml)
+    public function getSearchCompanyResult(string $xml)
     {
         $result = [
             'status' => false,
@@ -162,7 +162,7 @@ trait PefindoTrait
         return $result;
     }
 
-    public function getReportPostBody($data = [])
+    public function getCompanyReportPostBody($data = [])
     {
         $xml = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:cb5="http://creditinfo.com/CB5"
@@ -201,7 +201,7 @@ trait PefindoTrait
         return $xml;
     }
 
-    public function getReportResult(string $xml)
+    public function getCompanyReportResult(string $xml)
     {
         $result = [
             'status' => false,
@@ -275,7 +275,11 @@ trait PefindoTrait
         } catch (\Throwable $th) {
             $result['status'] = false;
             // $result['message'] = "<pre>".$th."</pre>";
-            $result['message'] = $th."";
+            if (env('APP_ENV') == 'production') {
+                $result['message'] = "Failed to convert XML to JSON.";
+            }else{
+                $result['message'] = $th."";
+            }
         }
         // dd($result);
         return $result;

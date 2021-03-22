@@ -27,8 +27,8 @@ class PefindoController extends Controller
         ]);
 
         if (!$validator->fails()) {
-            $xml = $this->sendPost($this->getSearchPostBody($request->all()), 'SmartSearchCompany');
-            $data = $this->getSearchResult($xml);
+            $xml = $this->sendPost($this->getSearchCompanyPostBody($request->all()), 'SmartSearchCompany');
+            $data = $this->getSearchCompanyResult($xml);
         }else{
             $data['errors'] = $validator->errors();
         }
@@ -51,8 +51,8 @@ class PefindoController extends Controller
         ]);
 
         if (!$validator->fails()) {
-            $response = $this->sendPost($this->getReportPostBody($request->except('_token')), 'GetCustomReport');
-            $data = $this->getReportResult($response);
+            $response = $this->sendPost($this->getCompanyReportPostBody($request->except('_token')), 'GetCustomReport');
+            $data = $this->getCompanyReportResult($response);
         }else{
             $data['errors'] = $validator->errors();
         }
