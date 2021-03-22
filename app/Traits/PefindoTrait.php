@@ -224,7 +224,7 @@ trait PefindoTrait
                     'date' => Carbon::parse($data['CIP']['RecordList']['Record'][0]['Date']),
                     'score' => $data['CIP']['RecordList']['Record'][0]['Score'],
                     'grade' => $data['CIP']['RecordList']['Record'][0]['Grade'],
-                    'grade_desc' => '',
+                    'grade_desc' => config('pefindo.dictionary.score')[$data['CIP']['RecordList']['Record'][0]['Grade']]['description'] ?? '',
                     'failpay_prob' => $data['CIP']['RecordList']['Record'][0]['ProbabilityOfDefault'],
                     'trend' => $data['CIP']['RecordList']['Record'][0]['Trend'],
                 ],
@@ -251,9 +251,9 @@ trait PefindoTrait
                 'facilities' => array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
                 ? [[
                     'sector' => $data['ContractOverview']['ContractList']['Contract']['Sector'],
-                    'type' => $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
+                    'type' => config('pefindo.dictionary.facility.type')[$data['ContractOverview']['ContractList']['Contract']['TypeOfContract']] ?? $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
                     'opening_date' => $data['ContractOverview']['ContractList']['Contract']['StartDate'],
-                    'status' => $data['ContractOverview']['ContractList']['Contract']['ContractStatus'],
+                    'status' => config('pefindo.dictionary.facility.status')[$data['ContractOverview']['ContractList']['Contract']['ContractStatus']] ?? $data['ContractOverview']['ContractList']['Contract']['ContractStatus'],
                     'plafon' => $data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Value']),
                     'baki_debet' => $data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Value']),
                     'past_due_amount' => $data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Value']),
@@ -262,9 +262,9 @@ trait PefindoTrait
                 : collect($data['ContractOverview']['ContractList']['Contract'])->map(function($item) {
                     return [
                         'sector' => $item['Sector'],
-                        'type' => $item['TypeOfContract'],
+                        'type' => config('pefindo.dictionary.facility.type')[$item['TypeOfContract']] ?? $item['TypeOfContract'],
                         'opening_date' => Carbon::parse($item['StartDate'])->format('Y-m-d'),
-                        'status' => $item['ContractStatus'],
+                        'status' => config('pefindo.dictionary.facility.status')[$item['ContractStatus']] ?? $item['ContractStatus'],
                         'plafon' => $item['TotalAmount']['Currency'].' '.number_format($item['TotalAmount']['Value']),
                         'baki_debet' => $item['OutstandingAmount']['Currency'].' '.number_format($item['OutstandingAmount']['Value']),
                         'past_due_amount' => $item['PastDueAmount']['Currency'].' '.number_format($item['PastDueAmount']['Value']),
@@ -274,7 +274,8 @@ trait PefindoTrait
             ];
         } catch (\Throwable $th) {
             $result['status'] = false;
-            $result['message'] = "<pre>".$th."</pre>";
+            // $result['message'] = "<pre>".$th."</pre>";
+            $result['message'] = $th."";
         }
         // dd($result);
         return $result;

@@ -656,7 +656,7 @@
                     <p><strong>Alamat </strong> {{ $data['company']['address'] }}</p>
                 </div>
             </div>
-            <div class="card mb-3 page-break">
+            {{-- <div class="card mb-3 page-break">
                 <div class="card-header bg-info text-white">
                     <h3>Data Histories</h3>
                 </div>
@@ -752,7 +752,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> --}}
             <div class="card mb-3 page-break">
                 <div class="card-header bg-info text-white">
                     <h3>Pefindo Score (PS)</h3>
