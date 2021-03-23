@@ -228,7 +228,7 @@ trait PefindoTrait
                     'failpay_prob' => $data['CIP']['RecordList']['Record'][0]['ProbabilityOfDefault'],
                     'trend' => $data['CIP']['RecordList']['Record'][0]['Trend'],
                 ],
-                'desc_about_risk' => array_key_exists('Code', $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
+                'desc_about_risk' => count($data['CIP']['RecordList']['Record'][0]['ReasonsList']) ? array_key_exists('Code', $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
                 ? [[
                     'code' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Code'],
                     'description' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Description'],
@@ -236,7 +236,7 @@ trait PefindoTrait
                 : collect($data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
                 ->map(function($item) {
                     return [ 'code' => $item['Code'], 'description' => $item['Description'] ];
-                })->toArray(),
+                })->toArray() : [],
                 'pefindo_score_histories' => collect($data['CIP']['RecordList']['Record'])->take(12)
                 ->map(function($item) {
                     return [
@@ -427,7 +427,7 @@ trait PefindoTrait
                     'failpay_prob' => $data['CIP']['RecordList']['Record'][0]['ProbabilityOfDefault'],
                     'trend' => $data['CIP']['RecordList']['Record'][0]['Trend'],
                 ],
-                'desc_about_risk' => array_key_exists('Code', $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
+                'desc_about_risk' => count($data['CIP']['RecordList']['Record'][0]['ReasonsList']) ? array_key_exists('Code', $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
                 ? [[
                     'code' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Code'],
                     'description' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Description'],
@@ -435,7 +435,7 @@ trait PefindoTrait
                 : collect($data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
                 ->map(function($item) {
                     return [ 'code' => $item['Code'], 'description' => $item['Description'] ];
-                })->toArray(),
+                })->toArray() : [],
                 'pefindo_score_histories' => collect($data['CIP']['RecordList']['Record'])->take(12)
                 ->map(function($item) {
                     return [
@@ -447,7 +447,7 @@ trait PefindoTrait
                         'trend' => $item['Trend'],
                     ];
                 })->reverse()->values()->toArray(),
-                'facilities' => array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
+                'facilities' => count($data['ContractOverview']['ContractList']) ? array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
                 ? [[
                     'sector' => $data['ContractOverview']['ContractList']['Contract']['Sector'],
                     'type' => config('pefindo.dictionary.facility.type')[$data['ContractOverview']['ContractList']['Contract']['TypeOfContract']] ?? $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
@@ -469,7 +469,7 @@ trait PefindoTrait
                         'past_due_amount' => $item['PastDueAmount']['Currency'].' '.number_format($item['PastDueAmount']['Value']),
                         'past_due_days' => $item['PastDueDays'],
                     ];
-                })->sortBy('opening_date')->toArray(),
+                })->sortBy('opening_date')->toArray() : [],
             ];
         } catch (\Throwable $th) {
             $result['status'] = false;
