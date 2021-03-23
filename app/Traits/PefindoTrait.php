@@ -248,7 +248,7 @@ trait PefindoTrait
                         'trend' => $item['Trend'],
                     ];
                 })->reverse()->values()->toArray(),
-                'facilities' => array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
+                'facilities' => count($data['ContractOverview']['ContractList']) ? array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
                 ? [[
                     'sector' => $data['ContractOverview']['ContractList']['Contract']['Sector'],
                     'type' => config('pefindo.dictionary.facility.type')[$data['ContractOverview']['ContractList']['Contract']['TypeOfContract']] ?? $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
@@ -270,7 +270,7 @@ trait PefindoTrait
                         'past_due_amount' => $item['PastDueAmount']['Currency'].' '.number_format($item['PastDueAmount']['Value']),
                         'past_due_days' => $item['PastDueDays'],
                     ];
-                })->sortBy('opening_date')->toArray(),
+                })->sortBy('opening_date')->toArray() : [],
             ];
         } catch (\Throwable $th) {
             $result['status'] = false;
