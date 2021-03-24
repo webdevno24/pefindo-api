@@ -171,6 +171,10 @@ return [
                 'SoldByIBRAPPAToNonBank' => 'Fasilitas dijual BPPN/PPA kepada pihak Non-bank',
                 'SoldToOtherNonReportingInst' => 'Fasilitas dijual ke institusi non-keuangan lain',
             ],
+            'sector' => [
+                'Banks' => 'Perbankan',
+                'NonBankingFinancialInstitutions' => 'Lembaga Keuangan Non Bank',
+            ],
         ],
     ],
 ];
