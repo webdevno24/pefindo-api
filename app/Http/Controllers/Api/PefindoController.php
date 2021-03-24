@@ -43,7 +43,7 @@ class PefindoController extends Controller
         return response()->json($data, $data['status'] ? 200 : 500);
     }
 
-    public function searchIndividu(Request $request)
+    public function searchIndividu(Request $request, $demo = null)
     {
         $data = [
             'status' => false,
@@ -75,7 +75,7 @@ class PefindoController extends Controller
         return response()->json($data, $data['status'] ? 200 : 500);
     }
 
-    public function companyReport(Request $request, $download = false)
+    public function companyReport(Request $request, $demo = null, $download = false)
     {
         $data = [
             'status' => false,
@@ -108,7 +108,7 @@ class PefindoController extends Controller
         return response()->json($data, $data['status'] ? 200 : 500);
     }
 
-    public function individuReport(Request $request, $download = false)
+    public function individuReport(Request $request, $demo = null, $download = false)
     {
         $data = [
             'status' => false,
@@ -141,9 +141,9 @@ class PefindoController extends Controller
         return response()->json($data, $data['status'] ? 200 : 500);
     }
 
-    public function companyReportPdf(Request $request)
+    public function companyReportPdf(Request $request, $demo = null)
     {
-        $data = $this->companyReport($request, true);
+        $data = $this->companyReport($request, $demo, true);
         // return view('report', $data);
         $dompdf = \PDF::loadView('report', $data);
         $dompdf->setPaper('Letter', 'landscape');
