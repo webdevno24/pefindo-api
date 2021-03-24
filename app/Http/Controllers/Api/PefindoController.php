@@ -11,7 +11,7 @@ class PefindoController extends Controller
 {
     use PefindoTrait;
 
-    public function searchCompany(Request $request)
+    public function searchCompany(Request $request, $demo = null)
     {
         $data = [
             'status' => false,
@@ -27,7 +27,14 @@ class PefindoController extends Controller
         ]);
 
         if (!$validator->fails()) {
-            $xml = $this->sendPost($this->getSearchCompanyPostBody($request->all()), 'SmartSearchCompany');
+            if (strtolower($demo) === 'demo') {
+                $xml = $this->sendDemoPost($this->getSearchCompanyPostBody($request->all()), 'SmartSearchCompany');
+            } elseif($demo === null) {
+                $xml = $this->sendPost($this->getSearchCompanyPostBody($request->all()), 'SmartSearchCompany');
+            }else{
+                dd("");
+                abort(404);
+            }
             $data = $this->getSearchCompanyResult($xml);
         }else{
             $data['errors'] = $validator->errors();
@@ -53,7 +60,13 @@ class PefindoController extends Controller
         ]);
 
         if (!$validator->fails()) {
-            $xml = $this->sendPost($this->getSearchIndividuPostBody($request->all()), 'SmartSearchIndividual');
+            if (strtolower($demo) === 'demo') {
+                $xml = $this->sendDemoPost($this->getSearchIndividuPostBody($request->all()), 'SmartSearchIndividual');
+            } elseif($demo === null) {
+                $xml = $this->sendPost($this->getSearchIndividuPostBody($request->all()), 'SmartSearchIndividual');
+            }else{
+                abort(404);
+            }
             $data = $this->getSearchIndividuResult($xml);
         }else{
             $data['errors'] = $validator->errors();
@@ -77,7 +90,13 @@ class PefindoController extends Controller
         ]);
 
         if (!$validator->fails()) {
-            $response = $this->sendPost($this->getCompanyReportPostBody($request->except('_token')), 'GetCustomReport');
+            if (strtolower($demo) === 'demo') {
+                $response = $this->sendDemoPost($this->getCompanyReportPostBody($request->except('_token')), 'GetCustomReport');
+            } elseif($demo === null) {
+                $response = $this->sendPost($this->getCompanyReportPostBody($request->except('_token')), 'GetCustomReport');
+            }else{
+                abort(404);
+            }
             $data = $this->getCompanyReportResult($response);
         }else{
             $data['errors'] = $validator->errors();
@@ -104,7 +123,13 @@ class PefindoController extends Controller
         ]);
 
         if (!$validator->fails()) {
-            $response = $this->sendPost($this->getIndividuReportPostBody($request->except('_token')), 'GetCustomReport');
+            if (strtolower($demo) === 'demo') {
+                $response = $this->sendDemoPost($this->getIndividuReportPostBody($request->except('_token')), 'GetCustomReport');
+            } elseif($demo === null) {
+                $response = $this->sendPost($this->getIndividuReportPostBody($request->except('_token')), 'GetCustomReport');
+            }else{
+                abort(404);
+            }
             $data = $this->getIndividuReportResult($response);
         }else{
             $data['errors'] = $validator->errors();

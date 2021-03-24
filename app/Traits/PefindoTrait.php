@@ -6,6 +6,32 @@ use Carbon\Carbon;
 
 trait PefindoTrait
 {
+    public function sendDemoPost($postField, $soapAction)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL => env('PEFINDO_DEMO_URL', '#'),
+            CURLOPT_USERPWD => env('PEFINDO_DEMO_USER', 'apa').':'.env('PEFINDO_DEMO_PASS', 'ya?'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $postField,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: text/xml',
+                'SoapAction: http://creditinfo.com/CB5/IReportPublicServiceBase/'.$soapAction,
+            ),
+        ]);
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+        return $response;
+    }
+
     public function sendPost($postField, $soapAction)
     {
         $curl = curl_init();

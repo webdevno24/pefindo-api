@@ -15,5 +15,5 @@ Route::get('/', function () {
     return view('welcome');
     return '<h1>PBK-KBOOST</h1>';
 })->name('home');
-Route::post('smartSearchCompany', 'PefindoController@smartSearchCompany')->name('smartSearchCompany');
-Route::get('customReport', 'PefindoController@CustomReport')->name('customReport');
+// Route::post('smartSearchCompany', 'PefindoController@smartSearchCompany')->name('smartSearchCompany');
+// Route::get('customReport', 'PefindoController@CustomReport')->name('customReport');
