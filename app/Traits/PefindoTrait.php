@@ -155,31 +155,33 @@ trait PefindoTrait
         ];
 
         try {
-            $data = $this->xmlToArray($xml)['Body']['SmartSearchCompanyResponse']['SmartSearchCompanyResult'];
+            $json = $this->xmlToArray($xml);
+            $data = $json['Body']['SmartSearchCompanyResponse']['SmartSearchCompanyResult'] ?? null;
             // dd($data);
-            $result['message'] = $data['Status'];
-            if ($result['message'] === 'SubjectFound') {
-                $result['status'] = true;
-                if (array_key_exists('NPWP', $data['CompanyRecords']['SearchCompanyRecord'])) {
-                    $result['data'][] = [
-                        'address' => $data['CompanyRecords']['SearchCompanyRecord']['Address'],
-                        'company_name' => $data['CompanyRecords']['SearchCompanyRecord']['CompanyName'],
-                        'npwp' => $data['CompanyRecords']['SearchCompanyRecord']['NPWP'],
-                        'pefindo_id' => $data['CompanyRecords']['SearchCompanyRecord']['PefindoId'],
-                    ];
-                }else{
-                    // $result['data'] = $data['CompanyRecords']['SearchCompanyRecord'];
-                    /* Change index to lowercase */
-                    $result['data'] = collect($data['CompanyRecords']['SearchCompanyRecord'])->map(function($item) {
-                        return [
-                            'address' => $item['Address'],
-                            'company_name' => $item['CompanyName'],
-                            'npwp' => $item['NPWP'],
-                            'pefindo_id' => $item['PefindoId'],
+            if ($data) {
+                $result['message'] = $data['Status'];
+                if ($result['message'] === 'SubjectFound') {
+                    $result['status'] = true;
+                    if (array_key_exists('NPWP', $data['CompanyRecords']['SearchCompanyRecord'])) {
+                        $result['data'][] = [
+                            'address' => $data['CompanyRecords']['SearchCompanyRecord']['Address'],
+                            'company_name' => $data['CompanyRecords']['SearchCompanyRecord']['CompanyName'],
+                            'npwp' => $data['CompanyRecords']['SearchCompanyRecord']['NPWP'],
+                            'pefindo_id' => $data['CompanyRecords']['SearchCompanyRecord']['PefindoId'],
                         ];
-                    });
+                    }else{
+                        // $result['data'] = $data['CompanyRecords']['SearchCompanyRecord'];
+                        /* Change index to lowercase */
+                        $result['data'] = collect($data['CompanyRecords']['SearchCompanyRecord'])->map(function($item) {
+                            return [
+                                'address' => $item['Address'],
+                                'company_name' => $item['CompanyName'],
+                                'npwp' => $item['NPWP'],
+                                'pefindo_id' => $item['PefindoId'],
+                            ];
+                        });
+                    }
                 }
-
             }
         } catch (\Throwable $th) {
             $result['status'] = false;
@@ -236,68 +238,71 @@ trait PefindoTrait
         ];
 
         try {
-            $data = $this->xmlToArray($xml)['Body']['GetCustomReportResponse']['GetCustomReportResult'];
+            $json = $this->xmlToArray($xml);
+            $data = $json['Body']['GetCustomReportResponse']['GetCustomReportResult'] ?? null;
             // dd($data);
-            $result['status'] = true;
-            $result['data'] = [
-                'company' => [
-                    'name' => $data['Company']['General']['CompanyName'],
-                    'npwp' => $data['Company']['Identifications']['NPWP'],
-                    'pefindo_id' => $data['Company']['Identifications']['PefindoId'],
-                    'address' => $data['Company']['MainAddress']['AddressLine'],
-                ],
-                'pefindo_score' => [
-                    'date' => Carbon::parse($data['CIP']['RecordList']['Record'][0]['Date']),
-                    'score' => $data['CIP']['RecordList']['Record'][0]['Score'],
-                    'grade' => $data['CIP']['RecordList']['Record'][0]['Grade'],
-                    'grade_desc' => config('pefindo.dictionary.score')[$data['CIP']['RecordList']['Record'][0]['Grade']]['description'] ?? '',
-                    'failpay_prob' => $data['CIP']['RecordList']['Record'][0]['ProbabilityOfDefault'],
-                    'trend' => $data['CIP']['RecordList']['Record'][0]['Trend'],
-                ],
-                'desc_about_risk' => count($data['CIP']['RecordList']['Record'][0]['ReasonsList']) ? array_key_exists('Code', $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
-                ? [[
-                    'code' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Code'],
-                    'description' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Description'],
-                ]]
-                : collect($data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
-                ->map(function($item) {
-                    return [ 'code' => $item['Code'], 'description' => $item['Description'] ];
-                })->toArray() : [],
-                'pefindo_score_histories' => collect($data['CIP']['RecordList']['Record'])->take(12)
-                ->map(function($item) {
-                    return [
-                        'date' => Carbon::parse($item['Date']),
-                        'score' => $item['Score'],
-                        'grade' => $item['Grade'],
-                        'grade_desc' => '',
-                        'failpay_prob' => $item['ProbabilityOfDefault'],
-                        'trend' => $item['Trend'],
-                    ];
-                })->reverse()->values()->toArray(),
-                'facilities' => count($data['ContractOverview']['ContractList']) ? array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
-                ? [[
-                    'sector' => config('pefindo.dictionary.facility.sector')[$data['ContractOverview']['ContractList']['Contract']['Sector']],
-                    'type' => config('pefindo.dictionary.facility.type')[$data['ContractOverview']['ContractList']['Contract']['TypeOfContract']] ?? $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
-                    'opening_date' => $data['ContractOverview']['ContractList']['Contract']['StartDate'],
-                    'status' => config('pefindo.dictionary.facility.status')[$data['ContractOverview']['ContractList']['Contract']['ContractStatus']] ?? $data['ContractOverview']['ContractList']['Contract']['ContractStatus'],
-                    'plafon' => $data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Value']),
-                    'baki_debet' => $data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Value']),
-                    'past_due_amount' => $data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Value']),
-                    'past_due_days' => $data['ContractOverview']['ContractList']['Contract']['PastDueDays'],
-                ]]
-                : collect($data['ContractOverview']['ContractList']['Contract'])->map(function($item) {
-                    return [
-                        'sector' => config('pefindo.dictionary.facility.sector')[$item['Sector']],
-                        'type' => config('pefindo.dictionary.facility.type')[$item['TypeOfContract']] ?? $item['TypeOfContract'],
-                        'opening_date' => Carbon::parse($item['StartDate'])->format('Y-m-d'),
-                        'status' => config('pefindo.dictionary.facility.status')[$item['ContractStatus']] ?? $item['ContractStatus'],
-                        'plafon' => $item['TotalAmount']['Currency'].' '.number_format($item['TotalAmount']['Value']),
-                        'baki_debet' => $item['OutstandingAmount']['Currency'].' '.number_format($item['OutstandingAmount']['Value']),
-                        'past_due_amount' => $item['PastDueAmount']['Currency'].' '.number_format($item['PastDueAmount']['Value']),
-                        'past_due_days' => $item['PastDueDays'],
-                    ];
-                })->sortBy('opening_date')->toArray() : [],
-            ];
+            if ($data) {
+                $result['status'] = true;
+                $result['data'] = [
+                    'company' => [
+                        'name' => $data['Company']['General']['CompanyName'],
+                        'npwp' => $data['Company']['Identifications']['NPWP'],
+                        'pefindo_id' => $data['Company']['Identifications']['PefindoId'],
+                        'address' => $data['Company']['MainAddress']['AddressLine'],
+                    ],
+                    'pefindo_score' => [
+                        'date' => Carbon::parse($data['CIP']['RecordList']['Record'][0]['Date']),
+                        'score' => $data['CIP']['RecordList']['Record'][0]['Score'],
+                        'grade' => $data['CIP']['RecordList']['Record'][0]['Grade'],
+                        'grade_desc' => config('pefindo.dictionary.score')[$data['CIP']['RecordList']['Record'][0]['Grade']]['description'] ?? '',
+                        'failpay_prob' => $data['CIP']['RecordList']['Record'][0]['ProbabilityOfDefault'],
+                        'trend' => $data['CIP']['RecordList']['Record'][0]['Trend'],
+                    ],
+                    'desc_about_risk' => count($data['CIP']['RecordList']['Record'][0]['ReasonsList']) ? array_key_exists('Code', $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
+                    ? [[
+                        'code' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Code'],
+                        'description' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Description'],
+                    ]]
+                    : collect($data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
+                    ->map(function($item) {
+                        return [ 'code' => $item['Code'], 'description' => $item['Description'] ];
+                    })->toArray() : [],
+                    'pefindo_score_histories' => collect($data['CIP']['RecordList']['Record'])->take(12)
+                    ->map(function($item) {
+                        return [
+                            'date' => Carbon::parse($item['Date']),
+                            'score' => $item['Score'],
+                            'grade' => $item['Grade'],
+                            'grade_desc' => '',
+                            'failpay_prob' => $item['ProbabilityOfDefault'],
+                            'trend' => $item['Trend'],
+                        ];
+                    })->reverse()->values()->toArray(),
+                    'facilities' => count($data['ContractOverview']['ContractList']) ? array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
+                    ? [[
+                        'sector' => config('pefindo.dictionary.facility.sector')[$data['ContractOverview']['ContractList']['Contract']['Sector']],
+                        'type' => config('pefindo.dictionary.facility.type')[$data['ContractOverview']['ContractList']['Contract']['TypeOfContract']] ?? $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
+                        'opening_date' => $data['ContractOverview']['ContractList']['Contract']['StartDate'],
+                        'status' => config('pefindo.dictionary.facility.status')[$data['ContractOverview']['ContractList']['Contract']['ContractStatus']] ?? $data['ContractOverview']['ContractList']['Contract']['ContractStatus'],
+                        'plafon' => $data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Value']),
+                        'baki_debet' => $data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Value']),
+                        'past_due_amount' => $data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Value']),
+                        'past_due_days' => $data['ContractOverview']['ContractList']['Contract']['PastDueDays'],
+                    ]]
+                    : collect($data['ContractOverview']['ContractList']['Contract'])->map(function($item) {
+                        return [
+                            'sector' => config('pefindo.dictionary.facility.sector')[$item['Sector']],
+                            'type' => config('pefindo.dictionary.facility.type')[$item['TypeOfContract']] ?? $item['TypeOfContract'],
+                            'opening_date' => Carbon::parse($item['StartDate'])->format('Y-m-d'),
+                            'status' => config('pefindo.dictionary.facility.status')[$item['ContractStatus']] ?? $item['ContractStatus'],
+                            'plafon' => $item['TotalAmount']['Currency'].' '.number_format($item['TotalAmount']['Value']),
+                            'baki_debet' => $item['OutstandingAmount']['Currency'].' '.number_format($item['OutstandingAmount']['Value']),
+                            'past_due_amount' => $item['PastDueAmount']['Currency'].' '.number_format($item['PastDueAmount']['Value']),
+                            'past_due_days' => $item['PastDueDays'],
+                        ];
+                    })->sortBy('opening_date')->toArray() : [],
+                ];
+            }
         } catch (\Throwable $th) {
             $result['status'] = false;
             // $result['message'] = "<pre>".$th."</pre>";
@@ -354,33 +359,35 @@ trait PefindoTrait
 
         try {
             $json = $this->xmlToArray($xml);
-            $data = $json['Body']['SmartSearchIndividualResponse']['SmartSearchIndividualResult'];
+            $data = $json['Body']['SmartSearchIndividualResponse']['SmartSearchIndividualResult'] ?? null;
             // dd($data);
-            $result['message'] = $data['Status'];
-            if ($result['message'] === 'SubjectFound') {
-                $result['status'] = true;
-                if (array_key_exists('KTP', $data['IndividualRecords']['SearchIndividualRecord'])) {
-                    $result['data'][] = [
-                        'address' => $data['IndividualRecords']['SearchIndividualRecord']['Address'],
-                        'date_of_birth' => $data['IndividualRecords']['SearchIndividualRecord']['DateOfBirth'],
-                        'full_name' => $data['IndividualRecords']['SearchIndividualRecord']['FullName'],
-                        'ktp' => $data['IndividualRecords']['SearchIndividualRecord']['KTP'],
-                        'pefindo_id' => $data['IndividualRecords']['SearchIndividualRecord']['PefindoId'],
-                    ];
-                }else{
-                    // $result['data'] = $data['IndividualRecords']['SearchIndividualRecord'];
-                    /* Change index to lowercase */
-                    $result['data'] = collect($data['IndividualRecords']['SearchIndividualRecord'])->map(function($item) {
-                        return [
-                            'address' => $item['Address'],
-                            'date_of_birth' => $item['DateOfBirth'],
-                            'full_name' => $item['FullName'],
-                            'ktp' => $item['KTP'],
-                            'pefindo_id' => $item['PefindoId'],
+            if ($data) {
+                $result['message'] = $data['Status'];
+                if ($result['message'] === 'SubjectFound') {
+                    $result['status'] = true;
+                    if (array_key_exists('KTP', $data['IndividualRecords']['SearchIndividualRecord'])) {
+                        $result['data'][] = [
+                            'address' => $data['IndividualRecords']['SearchIndividualRecord']['Address'],
+                            'date_of_birth' => $data['IndividualRecords']['SearchIndividualRecord']['DateOfBirth'],
+                            'full_name' => $data['IndividualRecords']['SearchIndividualRecord']['FullName'],
+                            'ktp' => $data['IndividualRecords']['SearchIndividualRecord']['KTP'],
+                            'pefindo_id' => $data['IndividualRecords']['SearchIndividualRecord']['PefindoId'],
                         ];
-                    })->toArray();
-                }
+                    }else{
+                        // $result['data'] = $data['IndividualRecords']['SearchIndividualRecord'];
+                        /* Change index to lowercase */
+                        $result['data'] = collect($data['IndividualRecords']['SearchIndividualRecord'])->map(function($item) {
+                            return [
+                                'address' => $item['Address'],
+                                'date_of_birth' => $item['DateOfBirth'],
+                                'full_name' => $item['FullName'],
+                                'ktp' => $item['KTP'],
+                                'pefindo_id' => $item['PefindoId'],
+                            ];
+                        })->toArray();
+                    }
 
+                }
             }
         } catch (\Throwable $th) {
             $result['status'] = false;
@@ -436,67 +443,69 @@ trait PefindoTrait
         try {
             $json = $this->xmlToArray($xml);
             // dd($json);
-            $data = $json['Body']['GetCustomReportResponse']['GetCustomReportResult'];
-            $result['status'] = true;
-            $result['data'] = [
-                'company' => [
-                    'name' => $data['Individual']['General']['FullName'],
-                    'npwp' => $data['Individual']['Identifications']['NPWP'],
-                    'pefindo_id' => $data['Individual']['Identifications']['PefindoId'],
-                    'address' => $data['Individual']['MainAddress']['AddressLine'],
-                ],
-                'pefindo_score' => [
-                    'date' => Carbon::parse($data['CIP']['RecordList']['Record'][0]['Date']),
-                    'score' => $data['CIP']['RecordList']['Record'][0]['Score'],
-                    'grade' => $data['CIP']['RecordList']['Record'][0]['Grade'],
-                    'grade_desc' => config('pefindo.dictionary.score')[$data['CIP']['RecordList']['Record'][0]['Grade']]['description'] ?? '',
-                    'failpay_prob' => $data['CIP']['RecordList']['Record'][0]['ProbabilityOfDefault'],
-                    'trend' => $data['CIP']['RecordList']['Record'][0]['Trend'],
-                ],
-                'desc_about_risk' => count($data['CIP']['RecordList']['Record'][0]['ReasonsList']) ? array_key_exists('Code', $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
-                ? [[
-                    'code' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Code'],
-                    'description' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Description'],
-                ]]
-                : collect($data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
-                ->map(function($item) {
-                    return [ 'code' => $item['Code'], 'description' => $item['Description'] ];
-                })->toArray() : [],
-                'pefindo_score_histories' => collect($data['CIP']['RecordList']['Record'])->take(12)
-                ->map(function($item) {
-                    return [
-                        'date' => Carbon::parse($item['Date']),
-                        'score' => $item['Score'],
-                        'grade' => $item['Grade'],
-                        'grade_desc' => '',
-                        'failpay_prob' => $item['ProbabilityOfDefault'],
-                        'trend' => $item['Trend'],
-                    ];
-                })->reverse()->values()->toArray(),
-                'facilities' => count($data['ContractOverview']['ContractList']) ? array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
-                ? [[
-                    'sector' => config('pefindo.dictionary.facility.sector')[$data['ContractOverview']['ContractList']['Contract']['Sector']],
-                    'type' => config('pefindo.dictionary.facility.type')[$data['ContractOverview']['ContractList']['Contract']['TypeOfContract']] ?? $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
-                    'opening_date' => $data['ContractOverview']['ContractList']['Contract']['StartDate'],
-                    'status' => config('pefindo.dictionary.facility.status')[$data['ContractOverview']['ContractList']['Contract']['ContractStatus']] ?? $data['ContractOverview']['ContractList']['Contract']['ContractStatus'],
-                    'plafon' => $data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Value']),
-                    'baki_debet' => $data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Value']),
-                    'past_due_amount' => $data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Value']),
-                    'past_due_days' => $data['ContractOverview']['ContractList']['Contract']['PastDueDays'],
-                ]]
-                : collect($data['ContractOverview']['ContractList']['Contract'])->map(function($item) {
-                    return [
-                        'sector' => config('pefindo.dictionary.facility.sector')[$item['Sector']],
-                        'type' => config('pefindo.dictionary.facility.type')[$item['TypeOfContract']] ?? $item['TypeOfContract'],
-                        'opening_date' => Carbon::parse($item['StartDate'])->format('Y-m-d'),
-                        'status' => config('pefindo.dictionary.facility.status')[$item['ContractStatus']] ?? $item['ContractStatus'],
-                        'plafon' => $item['TotalAmount']['Currency'].' '.number_format($item['TotalAmount']['Value']),
-                        'baki_debet' => $item['OutstandingAmount']['Currency'].' '.number_format($item['OutstandingAmount']['Value']),
-                        'past_due_amount' => $item['PastDueAmount']['Currency'].' '.number_format($item['PastDueAmount']['Value']),
-                        'past_due_days' => $item['PastDueDays'],
-                    ];
-                })->sortBy('opening_date')->toArray() : [],
-            ];
+            $data = $json['Body']['GetCustomReportResponse']['GetCustomReportResult'] ?? null;
+            if ($data) {
+                $result['status'] = true;
+                $result['data'] = [
+                    'company' => [
+                        'name' => $data['Individual']['General']['FullName'],
+                        'npwp' => $data['Individual']['Identifications']['NPWP'],
+                        'pefindo_id' => $data['Individual']['Identifications']['PefindoId'],
+                        'address' => $data['Individual']['MainAddress']['AddressLine'],
+                    ],
+                    'pefindo_score' => [
+                        'date' => Carbon::parse($data['CIP']['RecordList']['Record'][0]['Date']),
+                        'score' => $data['CIP']['RecordList']['Record'][0]['Score'],
+                        'grade' => $data['CIP']['RecordList']['Record'][0]['Grade'],
+                        'grade_desc' => config('pefindo.dictionary.score')[$data['CIP']['RecordList']['Record'][0]['Grade']]['description'] ?? '',
+                        'failpay_prob' => $data['CIP']['RecordList']['Record'][0]['ProbabilityOfDefault'],
+                        'trend' => $data['CIP']['RecordList']['Record'][0]['Trend'],
+                    ],
+                    'desc_about_risk' => count($data['CIP']['RecordList']['Record'][0]['ReasonsList']) ? array_key_exists('Code', $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
+                    ? [[
+                        'code' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Code'],
+                        'description' => $data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason']['Description'],
+                    ]]
+                    : collect($data['CIP']['RecordList']['Record'][0]['ReasonsList']['Reason'])
+                    ->map(function($item) {
+                        return [ 'code' => $item['Code'], 'description' => $item['Description'] ];
+                    })->toArray() : [],
+                    'pefindo_score_histories' => collect($data['CIP']['RecordList']['Record'])->take(12)
+                    ->map(function($item) {
+                        return [
+                            'date' => Carbon::parse($item['Date']),
+                            'score' => $item['Score'],
+                            'grade' => $item['Grade'],
+                            'grade_desc' => '',
+                            'failpay_prob' => $item['ProbabilityOfDefault'],
+                            'trend' => $item['Trend'],
+                        ];
+                    })->reverse()->values()->toArray(),
+                    'facilities' => count($data['ContractOverview']['ContractList']) ? array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
+                    ? [[
+                        'sector' => config('pefindo.dictionary.facility.sector')[$data['ContractOverview']['ContractList']['Contract']['Sector']],
+                        'type' => config('pefindo.dictionary.facility.type')[$data['ContractOverview']['ContractList']['Contract']['TypeOfContract']] ?? $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
+                        'opening_date' => $data['ContractOverview']['ContractList']['Contract']['StartDate'],
+                        'status' => config('pefindo.dictionary.facility.status')[$data['ContractOverview']['ContractList']['Contract']['ContractStatus']] ?? $data['ContractOverview']['ContractList']['Contract']['ContractStatus'],
+                        'plafon' => $data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['TotalAmount']['Value']),
+                        'baki_debet' => $data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['OutstandingAmount']['Value']),
+                        'past_due_amount' => $data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Currency'].' '.number_format($data['ContractOverview']['ContractList']['Contract']['PastDueAmount']['Value']),
+                        'past_due_days' => $data['ContractOverview']['ContractList']['Contract']['PastDueDays'],
+                    ]]
+                    : collect($data['ContractOverview']['ContractList']['Contract'])->map(function($item) {
+                        return [
+                            'sector' => config('pefindo.dictionary.facility.sector')[$item['Sector']],
+                            'type' => config('pefindo.dictionary.facility.type')[$item['TypeOfContract']] ?? $item['TypeOfContract'],
+                            'opening_date' => Carbon::parse($item['StartDate'])->format('Y-m-d'),
+                            'status' => config('pefindo.dictionary.facility.status')[$item['ContractStatus']] ?? $item['ContractStatus'],
+                            'plafon' => $item['TotalAmount']['Currency'].' '.number_format($item['TotalAmount']['Value']),
+                            'baki_debet' => $item['OutstandingAmount']['Currency'].' '.number_format($item['OutstandingAmount']['Value']),
+                            'past_due_amount' => $item['PastDueAmount']['Currency'].' '.number_format($item['PastDueAmount']['Value']),
+                            'past_due_days' => $item['PastDueDays'],
+                        ];
+                    })->sortBy('opening_date')->toArray() : [],
+                ];
+            }
         } catch (\Throwable $th) {
             $result['status'] = false;
             // $result['message'] = "<pre>".$th."</pre>";
