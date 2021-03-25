@@ -23,6 +23,6 @@ Route::group(['prefix' => 'search'], function() {
 });
 Route::group(['prefix' => 'report'], function() {
     Route::post('company/{demo?}', 'Api\PefindoController@companyReport');
-    Route::post('individu{demo?}', 'Api\PefindoController@individuReport');
+    Route::post('individu/{demo?}', 'Api\PefindoController@individuReport');
     Route::post('company/pdf/{demo?}', 'Api\PefindoController@companyReportPdf');
 });
