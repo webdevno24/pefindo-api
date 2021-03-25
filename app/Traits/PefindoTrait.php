@@ -449,6 +449,10 @@ trait PefindoTrait
                 $result['data'] = [
                     'company' => [
                         'name' => $data['Individual']['General']['FullName'],
+                        'email' => $data['Individual']['Contact']['Email'],
+                        'fixed_line' => $data['Individual']['Contact']['FixedLine'],
+                        'mobile_phone' => $data['Individual']['Contact']['MobilePhone'],
+                        'id_number' => $data['Individual']['Identifications']['KTP'],
                         'npwp' => $data['Individual']['Identifications']['NPWP'],
                         'pefindo_id' => $data['Individual']['Identifications']['PefindoId'],
                         'address' => $data['Individual']['MainAddress']['AddressLine'],
