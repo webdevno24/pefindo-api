@@ -447,7 +447,7 @@ trait PefindoTrait
             if ($data) {
                 $result['status'] = true;
                 $result['data'] = [
-                    'company' => [
+                    'individu' => [
                         'name' => $data['Individual']['General']['FullName'],
                         'email' => $data['Individual']['Contact']['Email'],
                         'fixed_line' => $data['Individual']['Contact']['FixedLine'],
