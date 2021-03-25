@@ -280,7 +280,7 @@ trait PefindoTrait
                     })->reverse()->values()->toArray(),
                     'facilities' => count($data['ContractOverview']['ContractList']) ? array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
                     ? [[
-                        'sector' => config('pefindo.dictionary.facility.sector')[$data['ContractOverview']['ContractList']['Contract']['Sector']],
+                        'sector' => config('pefindo.dictionary.facility.sector')[$data['ContractOverview']['ContractList']['Contract']['Sector']]  ?? $data['ContractOverview']['ContractList']['Contract']['Sector'],
                         'type' => config('pefindo.dictionary.facility.type')[$data['ContractOverview']['ContractList']['Contract']['TypeOfContract']] ?? $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
                         'opening_date' => $data['ContractOverview']['ContractList']['Contract']['StartDate'],
                         'status' => config('pefindo.dictionary.facility.status')[$data['ContractOverview']['ContractList']['Contract']['ContractStatus']] ?? $data['ContractOverview']['ContractList']['Contract']['ContractStatus'],
@@ -291,7 +291,7 @@ trait PefindoTrait
                     ]]
                     : collect($data['ContractOverview']['ContractList']['Contract'])->map(function($item) {
                         return [
-                            'sector' => config('pefindo.dictionary.facility.sector')[$item['Sector']],
+                            'sector' => config('pefindo.dictionary.facility.sector')[$item['Sector']] ?? $item['Sector'],
                             'type' => config('pefindo.dictionary.facility.type')[$item['TypeOfContract']] ?? $item['TypeOfContract'],
                             'opening_date' => Carbon::parse($item['StartDate'])->format('Y-m-d'),
                             'status' => config('pefindo.dictionary.facility.status')[$item['ContractStatus']] ?? $item['ContractStatus'],
@@ -483,7 +483,7 @@ trait PefindoTrait
                     })->reverse()->values()->toArray(),
                     'facilities' => count($data['ContractOverview']['ContractList']) ? array_key_exists('ContractStatus', $data['ContractOverview']['ContractList']['Contract'])
                     ? [[
-                        'sector' => config('pefindo.dictionary.facility.sector')[$data['ContractOverview']['ContractList']['Contract']['Sector']],
+                        'sector' => config('pefindo.dictionary.facility.sector')[$data['ContractOverview']['ContractList']['Contract']['Sector']] ?? $data['ContractOverview']['ContractList']['Contract']['Sector'],
                         'type' => config('pefindo.dictionary.facility.type')[$data['ContractOverview']['ContractList']['Contract']['TypeOfContract']] ?? $data['ContractOverview']['ContractList']['Contract']['TypeOfContract'],
                         'opening_date' => $data['ContractOverview']['ContractList']['Contract']['StartDate'],
                         'status' => config('pefindo.dictionary.facility.status')[$data['ContractOverview']['ContractList']['Contract']['ContractStatus']] ?? $data['ContractOverview']['ContractList']['Contract']['ContractStatus'],
@@ -494,7 +494,7 @@ trait PefindoTrait
                     ]]
                     : collect($data['ContractOverview']['ContractList']['Contract'])->map(function($item) {
                         return [
-                            'sector' => config('pefindo.dictionary.facility.sector')[$item['Sector']],
+                            'sector' => config('pefindo.dictionary.facility.sector')[$item['Sector']] ?? $item['Sector'],
                             'type' => config('pefindo.dictionary.facility.type')[$item['TypeOfContract']] ?? $item['TypeOfContract'],
                             'opening_date' => Carbon::parse($item['StartDate'])->format('Y-m-d'),
                             'status' => config('pefindo.dictionary.facility.status')[$item['ContractStatus']] ?? $item['ContractStatus'],
